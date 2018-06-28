@@ -116,8 +116,11 @@ public:
     }
     PyObject *GetPyObject(vector<DataT> &vec) {
         int count = 0,length = vec.size();
+        if (length == 0) {
+            return PyList_New(0);
+        }
         PyObject *list = PyList_New(length);
-        if (list == NULL || length == 0) {
+        if (list == NULL) {
             return PyList_New(0);
         }
         for (typename vector<DataT>::iterator iter = vec.begin(); iter != vec.end(); iter++) {
@@ -139,8 +142,11 @@ public:
     }
     PyObject *GetPyObjectSimple(vector<DataT> &vec) {
         int count = 0,length = vec.size();
+        if (length == 0) {
+            return PyList_New(0);
+        }
         PyObject *list = PyList_New(length);
-        if (list == NULL || length == 0) {
+        if (list == NULL) {
             return PyList_New(0);
         }
         for (typename vector<DataT>::iterator iter = vec.begin(); iter != vec.end(); iter++) {
