@@ -182,6 +182,8 @@ struct SeriesScoreBody{
         PyMapping_SetItemString(dict, "id", rid);
         PyObject *value = Py_BuildValue("i", int(body.value));
         PyMapping_SetItemString(dict, "score", value);
+        Py_DECREF(rid);
+        Py_DECREF(value);
         return dict;
     }
 };

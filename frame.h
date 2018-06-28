@@ -122,6 +122,8 @@ struct FrameDataIFBody{
         PyMapping_SetItemString(dict, "id", rid);
         PyObject *value = Py_BuildValue("i", int(body.value));
         PyMapping_SetItemString(dict, "score", value);
+        Py_DECREF(rid);
+        Py_DECREF(value);
         return dict;
     }
     static PyObject *GetPyObjectSimple(FrameDataIFBody &body) {
@@ -134,6 +136,8 @@ struct FrameDataIFBody{
             PyObject *rid = Py_BuildValue("i", iter->rid);
             PyObject *value = Py_BuildValue("i", int(iter->value));
             PyDict_SetItem(dict, rid, value);
+            Py_DECREF(rid);
+            Py_DECREF(value);
         }
         return dict;
     }
@@ -194,6 +198,8 @@ struct FrameDataTIBody{
         PyMapping_SetItemString(dict, "type", type);
         PyObject *rid = Py_BuildValue("i", body.rid);
         PyMapping_SetItemString(dict, "id", rid);
+        Py_DECREF(rid);
+        Py_DECREF(type);
         return dict;
     }
     static PyObject *GetPyObjectSimple(FrameDataTIBody &body) {
