@@ -454,25 +454,51 @@ static PyMethodDef module_methods[] = {
     {NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static int matrixbuilder6_traverse(PyObject *m, visitproc visit, void *arg) {
+    return 0;
+}
+
+static int matrixbuilder6_clear(PyObject *m) {
+    return 0;
+}
+
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "matrixbuilder6",
+    NULL,
+    0,
+    module_methods,
+    NULL,
+    matrixbuilder6_traverse,
+    matrixbuilder6_clear,
+    NULL
+};
+#endif
+
 #ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC initmatrixbuilder6(void) {
-    PyObject *m;
+    PyObject *m = NULL;
     
     if (PyType_Ready(&frame_writer_obj) < 0)
-        return;
+        goto END;
     if (PyType_Ready(&frame_reader_obj) < 0)
-        return;
+        goto END;
     if (PyType_Ready(&series_writer_obj) < 0)
-        return;
+        goto END;
     if (PyType_Ready(&series_reader_obj) < 0)
-        return;
+        goto END;
 
+#if PY_MAJOR_VERSION >= 3
+    m = PyModule_Create(&moduledef);
+#else
     m = Py_InitModule3("matrixbuilder6", module_methods, "matrix builder module v1.0");
+#endif
 
     if (m == NULL)
-        return;
+        goto END;
 
     Py_INCREF(&frame_writer_obj);
     PyModule_AddObject(m, "frame_writer", (PyObject *)&frame_writer_obj);
@@ -482,4 +508,11 @@ PyMODINIT_FUNC initmatrixbuilder6(void) {
     PyModule_AddObject(m, "series_writer", (PyObject *)&series_writer_obj);
     Py_INCREF(&series_reader_obj);
     PyModule_AddObject(m, "series_reader", (PyObject *)&series_reader_obj);
+
+END:
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#else
+    return;
+#endif
 }

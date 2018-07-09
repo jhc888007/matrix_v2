@@ -152,17 +152,21 @@ public:
             FrameDataHeader, FrameDataStringBody>();
         _u32_writer = new FrameWriter<FrameIndexHeader, FrameIndexNormalBody,
             FrameDataHeader, FrameDataU32Body>();
+        _u64_writer = new FrameWriter<FrameIndexHeader, FrameIndexNormalBody,
+            FrameDataHeader, FrameDataU64Body>();
     }
     ~FrameWriterManager() {
         _if_writer->Close();
         _ti_writer->Close();
         _string_writer->Close();
         _u32_writer->Close();
+        _u64_writer->Close();
 
         delete _if_writer;
         delete _ti_writer;
         delete _string_writer;
         delete _u32_writer;
+        delete _u64_writer;
     }
     void Init(char *string1, char *string2, char *string3, long max_id) {
         if (max_id < 0) {
@@ -181,6 +185,9 @@ public:
         } else if (strcmp("u32", string3) == 0) {
             _type = FrameTypeU32;
             _u32_writer->Open(string1, string2, (uint64_t)max_id, _type);
+        } else if (strcmp("u64", string3) == 0) {
+            _type = FrameTypeU64;
+            _u64_writer->Open(string1, string2, (uint64_t)max_id, _type);
         }
     }
     void Write(long id, char *value, int len) {
@@ -195,6 +202,8 @@ public:
             _string_writer->Append((uint64_t)id, value, (uint64_t)len);
         } else if (_type == FrameTypeU32) {
             _u32_writer->Append((uint64_t)id, value, (uint64_t)len);
+        } else if (_type == FrameTypeU64) {
+            _u64_writer->Append((uint64_t)id, value, (uint64_t)len);
         }
     }
 
@@ -207,6 +216,8 @@ private:
         FrameDataStringBody> *_string_writer;
     FrameWriter<FrameIndexHeader, FrameIndexNormalBody, FrameDataHeader,
         FrameDataU32Body> *_u32_writer;
+    FrameWriter<FrameIndexHeader, FrameIndexNormalBody, FrameDataHeader,
+        FrameDataU64Body> *_u64_writer;
     FrameType _type;
 };
 

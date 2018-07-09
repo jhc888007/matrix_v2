@@ -201,6 +201,8 @@ public:
             FrameDataHeader, FrameDataStringBody>;
         _u32_reader = new FrameReader<FrameIndexHeader, FrameIndexNormalBody,
             FrameDataHeader, FrameDataU32Body>;
+        _u64_reader = new FrameReader<FrameIndexHeader, FrameIndexNormalBody,
+            FrameDataHeader, FrameDataU64Body>;
 
         _type = FrameTypeNone;
     }
@@ -209,10 +211,12 @@ public:
         _ti_reader->Close();
         _string_reader->Close();
         _u32_reader->Close();
+        _u64_reader->Close();
         delete _if_reader;
         delete _ti_reader;
         delete _string_reader;
         delete _u32_reader;
+        delete _u64_reader;
         delete _index_header_reader;
         delete _data_header_reader;
     }
@@ -245,6 +249,10 @@ public:
             _type = FrameTypeU32;
             _u32_reader->Open(string1, string2, (uint32_t)return_size_max,
                 index_header.off_max, data_header.off_max);
+        } else if (index_header.type == (uint32_t)FrameTypeU64) {
+            _type = FrameTypeU64;
+            _u64_reader->Open(string1, string2, (uint32_t)return_size_max,
+                index_header.off_max, data_header.off_max);
         } 
         return ;
     }
@@ -266,6 +274,10 @@ public:
             vector<FrameDataU32Body> *vec 
                 = _u32_reader->GetData((uint64_t)uid, (uint32_t)len);
             return _u32_reader->GetPyObject(*vec);
+        } else if (_type == FrameTypeU64) {
+            vector<FrameDataU64Body> *vec 
+                = _u64_reader->GetData((uint64_t)uid, (uint32_t)len);
+            return _u64_reader->GetPyObject(*vec);
         }
         return PyList_New(0);
     }
@@ -287,6 +299,10 @@ public:
             vector<FrameDataU32Body> *vec 
                 = _u32_reader->GetData((uint64_t)uid, (uint32_t)len);
             return _u32_reader->GetPyObjectVec(*vec);
+        } else if (_type == FrameTypeU64) {
+            vector<FrameDataU64Body> *vec 
+                = _u64_reader->GetData((uint64_t)uid, (uint32_t)len);
+            return _u64_reader->GetPyObjectVec(*vec);
         }
         return PyList_New(0);
     }
@@ -308,6 +324,10 @@ public:
             vector<FrameDataU32Body> *vec 
                 = _u32_reader->GetData((uint64_t)uid, (uint32_t)len);
             return _u32_reader->GetPyObjectSimple(*vec);
+        } else if (_type == FrameTypeU64) {
+            vector<FrameDataU64Body> *vec 
+                = _u64_reader->GetData((uint64_t)uid, (uint32_t)len);
+            return _u64_reader->GetPyObjectSimple(*vec);
         }
         return PyList_New(0);
     }
@@ -326,6 +346,9 @@ public:
         } else if (_type == FrameTypeU32) {
             _u32_reader->GetSize(index_size, data_size);
             return ;
+        } else if (_type == FrameTypeU64) {
+            _u64_reader->GetSize(index_size, data_size);
+            return ;
         }
     }
 private:
@@ -339,6 +362,8 @@ private:
         FrameDataStringBody> *_string_reader;
     FrameReader<FrameIndexHeader, FrameIndexNormalBody, FrameDataHeader,
         FrameDataU32Body> *_u32_reader;
+    FrameReader<FrameIndexHeader, FrameIndexNormalBody, FrameDataHeader,
+        FrameDataU64Body> *_u64_reader;
     FrameType _type;
 };
 

@@ -13,6 +13,7 @@ enum FrameType{
     FrameTypeTI,
     FrameTypeString,
     FrameTypeU32,
+    FrameTypeU64,
     FrameTypeNum
 };
 
@@ -300,6 +301,61 @@ struct FrameDataU32Body{
         return list;
     }
 };
+
+struct FrameDataU64Body{
+    uint64_t rid;
+    FrameDataU64Body() {
+        rid = 0;
+    }
+    static vector<FrameDataU64Body> &ParseString(vector<FrameDataU64Body> &vec, 
+        char *data, int len) {
+        char *start = data;
+        char *end;
+        FrameDataU64Body body;
+        long rid;
+        vec.resize(0);
+        while (start < data + len) {
+            end = strchr(start, '|');
+            if (NULL == end) {
+                rid = atol(start);
+                start = end + 1;
+
+                if (rid >= 0) {
+                    body.rid = (uint64_t)rid;
+                    vec.push_back(body);
+                }
+                break;
+            }
+            *end = '\0';
+            rid = atol(start);
+            start = end + 1;
+
+            if (rid >= 0) {
+                body.rid = (uint64_t)rid;
+                vec.push_back(body);
+            }
+        }
+        return vec;
+    }
+    static void Print(FrameDataU64Body &body) {
+        cout << " id:" << body.rid << endl;
+    }
+    static PyObject *GetPyObject(FrameDataU64Body &body) {
+        PyObject *rid = Py_BuildValue("l", body.rid);
+        return rid;
+    }
+    static PyObject *GetPyObjectSimple(FrameDataU64Body &body) {
+        PyObject *rid = Py_BuildValue("l", body.rid);
+        return rid;
+    }
+    static PyObject *GetPyObject(vector<FrameDataU64Body> &vec) {
+        PyObject *str = Py_BuildValue("s", "Null Call");
+        PyObject *list = PyList_New(1);
+        PyList_SET_ITEM(list, 0, str);
+        return list;
+    }
+};
+
 
 
 #endif
