@@ -474,12 +474,14 @@ static struct PyModuleDef moduledef = {
     matrixbuilder6_clear,
     NULL
 };
-#endif
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
-#endif
+PyMODINIT_FUNC PyInit_matrixbuilder6(void) {
+
+#else
+
 PyMODINIT_FUNC initmatrixbuilder6(void) {
+
+#endif
     PyObject *m = NULL;
     
     if (PyType_Ready(&frame_writer_obj) < 0)
