@@ -11,6 +11,7 @@ enum FrameType{
     FrameTypeNone,
     FrameTypeIF,
     FrameTypeTI,
+    FrameTypeTL,
     FrameTypeString,
     FrameTypeU32,
     FrameTypeU64,
@@ -215,6 +216,77 @@ struct FrameDataTIBody{
     }
 };
 
+struct FrameDataTLBody{
+    uint64_t type:4;
+    uint64_t rid:60;
+    FrameDataTLBody() {
+        type = 0;
+        rid = 0;
+    }
+    static vector<FrameDataTLBody> &ParseString(vector<FrameDataTLBody> &vec, 
+        char *data, int len) {
+        char *start = data;
+        char *end;
+        FrameDataTLBody body;
+        long type, rid;
+        vec.resize(0);
+        while (start < data + len) {
+            end = strchr(start, ':');
+            if (NULL == end) {
+                break;
+            }
+            *end = '\0';
+            type = atol(start);
+            start = end + 1;
+            end = strchr(start, '|');
+            if (NULL == end) {
+                rid = atol(start);
+                start = end + 1;
+
+                if (type >= 0 && rid >= 0) {
+                    body.type = type;
+                    body.rid = rid;
+                    vec.push_back(body);
+                }
+                break;
+            }
+            *end = '\0';
+            rid = atol(start);
+            start = end + 1;
+
+            if (type >= 0 && rid >= 0) {
+                body.type = type;
+                body.rid = rid;
+                vec.push_back(body);
+            }
+        }
+        return vec;
+    }
+    static void Print(FrameDataTLBody &body) {
+        cout << "type:" << body.type << " id:" << body.rid << endl;
+    }
+    static PyObject *GetPyObject(FrameDataTLBody &body) {
+        PyObject *dict = PyDict_New();
+        PyObject *type = Py_BuildValue("l", body.type);
+        PyMapping_SetItemString(dict, "type", type);
+        PyObject *rid = Py_BuildValue("l", body.rid);
+        PyMapping_SetItemString(dict, "id", rid);
+        Py_DECREF(rid);
+        Py_DECREF(type);
+        return dict;
+    }
+    static PyObject *GetPyObjectSimple(FrameDataTLBody &body) {
+        PyObject *rid = Py_BuildValue("l", body.rid);
+        return rid;
+    }
+    static PyObject *GetPyObject(vector<FrameDataTLBody> &vec) {
+        PyObject *str = Py_BuildValue("s", "Null Call");
+        PyObject *list = PyList_New(1);
+        PyList_SET_ITEM(list, 0, str);
+        return list;
+    }
+};
+
 struct FrameDataStringBody{
     uint32_t str;
     FrameDataStringBody() {
@@ -241,7 +313,12 @@ struct FrameDataStringBody{
         return str;
     }
     static PyObject *GetPyObject(vector<FrameDataStringBody> &vec) {
-        PyObject *str = Py_BuildValue("s", (char *)&vec[0]);
+        PyObject *str = NULL:
+        if vec.size() == 0 {
+            str = Py_BuildValue("s", "");
+        } else {
+            str = Py_BuildValue("s", (char *)&vec[0]);
+        }
         PyObject *list = PyList_New(1);
         PyList_SET_ITEM(list, 0, str);
         return list;
